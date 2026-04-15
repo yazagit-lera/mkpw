@@ -23,10 +23,9 @@ jobs:
           zip -9 ./mkpw.zip -- ./LICENSE ./mkpw ./mkpw.cmd
           sha256sum --tag ./mkpw.zip > mkpw.zip.sha256
 
-      - name: Make a tar gz
+      - name: Make a tar.gz
         run: |
-          tar -cvf ./mkpw.tar -- ./LICENSE ./mkpw
-          gzip -9v ./mkpw.tar
+          tar -cvf - -- ./LICENSE ./mkpw | gzip -9vc > ./mkpw.tar.gz
           sha256sum --tag ./mkpw.tar.gz > mkpw.tar.gz.sha256
 
       - name: Release
