@@ -1,8 +1,7 @@
 @echo off
-chcp 65001
 :: SPDX-License-Identifier: 0BSD
+:: Run the interactive mode
 setlocal
-title mkpw
 
-py.exe -3 "%~dp0mkpw" %*
+py -3 "%~dp0mkpw" -i
 pause
