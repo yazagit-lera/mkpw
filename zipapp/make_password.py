@@ -1,30 +1,36 @@
 # SPDX-License-Identifier: 0BSD
+"""Make a password."""
 
 from string import ascii_lowercase, ascii_uppercase, digits, punctuation
-from secrets import choice, SystemRandom
+from secrets import SystemRandom
 from get_wordlist import get_wordlist
 
 def make_password(
-    length: int,
-    passphrase: bool,
-    no_punctuation: bool,
-    custom_chars: str
+    length: int = 40,
+    make_passphrase: bool = False,
+    no_punctuation: bool = False,
+    custom_chars: str = "",
+    separator: str = "."
 ) -> str:
-    if passphrase:
+    system_random = SystemRandom()
+    if make_passphrase:
         wordlist = get_wordlist()
-        password = ".".join(choice(wordlist) for _ in range(length))
+        raw_password = system_random.choices(wordlist, k=length)
     else:
         charsets = (
             "" if no_punctuation else punctuation,
             custom_chars if custom_chars else "",
             ascii_lowercase, ascii_uppercase, digits
         )
-        required_chars = tuple(choice(charset) for charset in charsets
-                               if charset)
-        extra_length = length - sum(1 if charset else 0 for charset in charsets)
+        required_chars = [
+            system_random.choice(charset) for charset in charsets if charset
+        ]
+        charsets_count = sum(1 if charset else 0 for charset in charsets)
+        extra_length = length - charsets_count
         charset = "".join(charsets)
-        random_chars = tuple(choice(charset) for _ in range(extra_length))
-        password = list(required_chars + random_chars)
-        SystemRandom().shuffle(password)
-        password = "".join(password)
+        random_chars = system_random.choices(charset, k=extra_length)
+        raw_password = required_chars + random_chars
+        system_random.shuffle(raw_password)
+        separator = ""
+    password = separator.join(raw_password)
     return password

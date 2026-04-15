@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: 0BSD
+"""Get the passphrase word list."""
 
 def get_wordlist() -> tuple:
     wordlist = (
