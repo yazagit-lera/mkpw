@@ -1,4 +1,4 @@
-name: rls
+name: release
 on: workflow_dispatch
 permissions:
   contents: write
@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Delete old release
+      - name: Delete the old release
         run: gh release delete release --cleanup-tag -y || true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -18,15 +18,20 @@ jobs:
       - name: Make a zipapp
         run: python3 -m zipapp -c -p '/usr/bin/env python3' -o ./mkpw ./zipapp
 
-      - name: Compress
-        run: zip -9 ./mkpw.zip -- ./LICENSE ./mkpw ./mkpw.cmd
+      - name: Make a zip
+        run: |
+          zip -9 ./mkpw.zip -- ./LICENSE ./mkpw ./mkpw.cmd
+          sha256sum --tag ./mkpw.zip > mkpw.zip.sha256
 
-      - name: Make a checksum
-        run: sha256sum --tag ./mkpw.zip > mkpw.zip.sha256
+      - name: Make a tar gz
+        run: |
+          tar -cvf ./mkpw.tar -- ./LICENSE ./mkpw
+          gzip -9v ./mkpw.tar
+          sha256sum --tag ./mkpw.tar.gz > mkpw.tar.gz.sha256
 
       - name: Release
         run: |
-          gh release create release ./mkpw.zip ./mkpw.zip.sha256 \
-            --generate-notes
+          gh release create release ./mkpw.tar.gz ./mkpw.tar.gz.sha256 \
+            ./mkpw.zip ./mkpw.zip.sha256 --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
