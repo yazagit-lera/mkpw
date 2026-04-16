@@ -36,6 +36,17 @@ jobs:
           sha256sum --tag ./mkpw.zip > mkpw.zip.sha256
           sha256sum --tag ./mkpw.tar.gz > mkpw.tar.gz.sha256
 
+      - name: Sign the checksums
+        run: |
+          gpg_opts='--batch --no-use-agent --pinentry-mode loopback --no-tty --yes'
+          gpg_sign_opts='--armor --sign --detach-sig --passphrase'
+          echo "${GPG_SECRET_KEY}" | gpg ${gpg_opts} --import
+          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" --output mkpw.zip.sha256.asc mkpw.zip.sha256
+          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" --output mkpw.tar.gz.sha256.asc mkpw.tar.gz.sha256
+        env:
+          GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.PASSPHRASE }}
+ 
       - name: Release
         run: |
           gh release create release ./mkpw.tar.gz ./mkpw.tar.gz.sha256 \
