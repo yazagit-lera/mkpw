@@ -52,7 +52,7 @@ jobs:
       - name: Release
         run: |
           gh release create release \
-            -n '[GPG public key](https://github.com/nedorazrab0.gpg)'
+            -n '[GPG public key](https://github.com/nedorazrab0.gpg)' \
             ./mkpw.zip ./mkpw.zip.sha256 ./mkpw.zip.sha256.asc ./mkpw.tar.gz \
             ./mkpw.tar.gz.sha256 ./mkpw.tar.gz.sha256.asc
         env:
