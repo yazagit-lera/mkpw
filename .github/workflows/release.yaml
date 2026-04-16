@@ -38,18 +38,22 @@ jobs:
 
       - name: Sign the checksums
         run: |
-          gpg_opts='--batch --no-use-agent --pinentry-mode loopback --no-tty --yes'
-          gpg_sign_opts='--armor --sign --detach-sig --passphrase'
+          gpg_opts='--batch --pinentry-mode loopback --no-tty --yes'
+          gpg_sign_opts='--armor --detach-sign --passphrase'
           echo "${GPG_SECRET_KEY}" | gpg ${gpg_opts} --import
-          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" --output mkpw.zip.sha256.asc mkpw.zip.sha256
-          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" --output mkpw.tar.gz.sha256.asc mkpw.tar.gz.sha256
+          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" \
+            --output mkpw.zip.sha256.asc mkpw.zip.sha256
+          gpg ${gpg_opts} ${gpg_sign_opts} "${GPG_PASSPHRASE}" \
+            --output mkpw.tar.gz.sha256.asc mkpw.tar.gz.sha256
         env:
           GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.PASSPHRASE }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
  
       - name: Release
         run: |
-          gh release create release ./mkpw.tar.gz ./mkpw.tar.gz.sha256 \
-            ./mkpw.zip ./mkpw.zip.sha256 --generate-notes
+          gh release create release \
+            -n '[GPG public key](https://github.com/nedorazrab0.gpg)'
+            ./mkpw.zip ./mkpw.zip.sha256 ./mkpw.zip.sha256.asc ./mkpw.tar.gz \
+            ./mkpw.tar.gz.sha256 ./mkpw.tar.gz.sha256.asc
         env:
           GH_TOKEN: ${{ github.token }}
